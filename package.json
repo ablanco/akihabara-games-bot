@@ -1,0 +1,25 @@
+{
+  "name": "akihabara-telegram-bot",
+  "version": "1.0.0",
+  "description": "A Telegram bot for organizing boarg games.",
+  "author": "Alejandro Blanco <alejandro.b.e@gmail.com>",
+  "homepage": "https://github.com/ablanco/akihabarabot-telegram-bot",
+  "bugs": {
+    "url": "https://github.com/ablanco/akihabarabot-telegram-bot/issues"
+  },
+  "keywords": [
+    "telegram",
+    "boardgame",
+    "bot"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/ablanco/akihabarabot-telegram-bot.git"
+  },
+  "license": "MIT",
+  "dependencies": {
+    "lodash": "^4.17.11",
+    "node-telegram-bot-api": "^0.30.0",
+    "node-uuid": "^1.4.8"
+  }
+}
