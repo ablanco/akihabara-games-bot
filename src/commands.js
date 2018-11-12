@@ -3,7 +3,12 @@
 
 'use strict';
 
-const commands = {
+const sql = require('./sql.js');
+
+const commands = {};
+
+commands.newGame = async function (bot, msg) {
+    const games = await sql.getGames();
 };
 
 module.exports = commands;

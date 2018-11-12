@@ -24,6 +24,10 @@ bot.onText(/\/ayuda.*/, function (msg) {
     bot.sendMessage(msg.from.id, helpText);
 });
 
+bot.onText(/\/nueva.*/, function (msg) {
+    commands.newGame(bot, msg);
+});
+
 // INLINE MODE ////////////////////////////////////////////////////////////////
 
 bot.on('inline_query', function (request) {

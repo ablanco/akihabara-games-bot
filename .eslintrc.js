@@ -8,12 +8,13 @@ module.exports = {
     'eslint:recommended'
   ],
   env: {
-    browser: 'node'
+    node: true
   },
   rules: {
     'guard-for-in': 2,
     'no-alert': 1,
     'no-caller': 2,
+    'no-console': 0,
     'no-else-return': 2,
     'no-empty-function': 2,
     'no-eval': 2,
@@ -31,7 +32,6 @@ module.exports = {
     'no-plusplus': 2,
     'no-tabs': 2,
     'no-nested-ternary': 2,
-    'one-var': ['error', 'always'],
     'quotes': ['error', 'single'],
     'semi': ['error', 'always'],
     'comma-dangle': ['error', 'never'],
