@@ -24,4 +24,9 @@ bot.onText(/\/ayuda.*/, function (msg) {
     bot.sendMessage(msg.from.id, helpText);
 });
 
+// INLINE MODE ////////////////////////////////////////////////////////////////
+
+bot.on('inline_query', function (request) {
+});
+
 module.exports = bot;

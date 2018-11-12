@@ -2,6 +2,13 @@
 // MIT License
 
 const settings = {
+    // https://mariadb.com/kb/en/library/getting-started-with-the-nodejs-connector/
+    database: {
+        host: '',
+        user: '',
+        password: '',
+        connectionLimit: 5
+    },
     token: ''
 };
 
