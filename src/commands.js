@@ -9,6 +9,7 @@ const commands = {};
 
 commands.newGame = async function (bot, msg) {
     const games = await sql.getGames();
+    console.table(games);
 };
 
 module.exports = commands;

@@ -8,10 +8,11 @@ const mariadb = require('mariadb'),
     sqlstring = require('sqlstring');
 
 const pool = mariadb.createPool({
-    host: settings.db.host,
-    user: settings.db.user,
-    password: settings.db.password,
-    connectionLimit: settings.db.connectionLimit
+    host: settings.database.host,
+    user: settings.database.user,
+    password: settings.database.password,
+    database: 'akihabarabot',
+    connectionLimit: settings.database.connectionLimit
 });
 
 const sql = {};
@@ -33,15 +34,22 @@ sql.getGames = async function (includePast) {
     const query = ['SELECT * FROM games'];
 
     if (!includePast) {
-        query.push('WHERE blabla'); // TODO
+        query.push('WHERE date >= NOW()');
     }
     query.push(';');
     return sql.runQuery(query.join(' '));
 };
 
-sql.createGame = async function (game, creator, capacity, date) {
-    const query = sqlstring.format('INSERT INTO games VALUES (?, ?, ?, ?);', [
-        game, creator, capacity, date
+sql.createUser = async function (first, last, username) {
+    const query = sqlstring.format('INSERT INTO users VALUES (null, ?, ?, ?);', [
+        first, last, username
+    ]);
+    return sql.runQuery(query);
+};
+
+sql.createGame = async function (organizer, capacity, day, time, game) {
+    const query = sqlstring.format('INSERT INTO games VALUES (null, ?, ?, ?, ?);', [
+        organizer, capacity, `${day} ${time}`, game
     ]);
     return sql.runQuery(query);
 };
