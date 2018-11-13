@@ -4,9 +4,10 @@
 const settings = {
     // https://mariadb.com/kb/en/library/getting-started-with-the-nodejs-connector/
     database: {
-        host: '',
-        user: '',
+        host: 'localhost',
+        user: 'akihabarabot',
         password: '',
+        database: 'akihabarabot',
         connectionLimit: 5
     },
     token: ''

@@ -11,7 +11,7 @@ const pool = mariadb.createPool({
     host: settings.database.host,
     user: settings.database.user,
     password: settings.database.password,
-    database: 'akihabarabot',
+    database: settings.database.database,
     connectionLimit: settings.database.connectionLimit
 });
 
