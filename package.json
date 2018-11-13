@@ -19,6 +19,7 @@
   "license": "MIT",
   "dependencies": {
     "lodash": "^4.17.11",
+    "luxon": "^1.6.2",
     "mariadb": "^2.0.0-alpha",
     "node-telegram-bot-api": "^0.30.0",
     "node-uuid": "^1.4.8",

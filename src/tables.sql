@@ -15,7 +15,7 @@ CREATE TABLE `games` (
 );
 
 CREATE TABLE `users` (
-    `id` INT NOT NULL AUTO_INCREMENT,
+    `id` INT NOT NULL,
     `first_name` varchar(100) NOT NULL,
     `last_name` varchar(100) NOT NULL,
     `username` varchar(100),

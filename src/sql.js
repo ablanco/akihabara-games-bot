@@ -30,6 +30,13 @@ sql.runQuery = async function (query) {
     }
 };
 
+sql.getUser = async function (id) {
+    const query = sqlstring.format(
+        'SELECT * FROM users WHERE id=?;', [id]
+    );
+    return sql.runQuery(query);
+};
+
 sql.getGames = async function (includePast) {
     const query = ['SELECT * FROM games'];
 
@@ -40,15 +47,17 @@ sql.getGames = async function (includePast) {
     return sql.runQuery(query.join(' '));
 };
 
-sql.createUser = async function (first, last, username) {
-    const query = sqlstring.format('INSERT INTO users VALUES (null, ?, ?, ?);', [
-        first, last, username
+sql.createUser = async function (id, first, last, username) {
+    const query = sqlstring.format(
+        'INSERT INTO users VALUES (?, ?, ?, ?);', [
+        id, first, last, username
     ]);
     return sql.runQuery(query);
 };
 
 sql.createGame = async function (organizer, capacity, day, time, game) {
-    const query = sqlstring.format('INSERT INTO games VALUES (null, ?, ?, ?, ?);', [
+    const query = sqlstring.format(
+        'INSERT INTO games VALUES (null, ?, ?, ?, ?);', [
         organizer, capacity, `${day} ${time}`, game
     ]);
     return sql.runQuery(query);
