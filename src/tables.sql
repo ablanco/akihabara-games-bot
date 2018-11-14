@@ -11,6 +11,8 @@ CREATE TABLE `games` (
     `capacity` INT NOT NULL,
     `date` DATETIME NOT NULL,
     `game` varchar(150) NOT NULL,
+    `created` TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    `modified` TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
     PRIMARY KEY (`id`)
 );
 
@@ -19,12 +21,18 @@ CREATE TABLE `users` (
     `first_name` varchar(100) NOT NULL,
     `last_name` varchar(100) NOT NULL,
     `username` varchar(100),
+    `created` TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    `modified` TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
     PRIMARY KEY (`id`)
 );
 
 CREATE TABLE `players` (
+    `id` INT NOT NULL AUTO_INCREMENT,
     `game` INT NOT NULL,
-    `player` INT NOT NULL
+    `player` INT NOT NULL,
+    `created` TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    `modified` TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    PRIMARY KEY (`id`)
 );
 
 ALTER TABLE `games` ADD CONSTRAINT `games_fk0` FOREIGN KEY (`organizer`) REFERENCES `users`(`id`);

@@ -15,7 +15,8 @@ const pool = mariadb.createPool({
     connectionLimit: settings.database.connectionLimit
 });
 
-const sql = {};
+const sql = {},
+    dateFormat = 'yyyy-LL-dd HH:mm';
 
 sql.runQuery = async function (query) {
     let conn;
@@ -49,16 +50,31 @@ sql.getGames = async function (includePast) {
 
 sql.createUser = async function (id, first, last, username) {
     const query = sqlstring.format(
-        'INSERT INTO users VALUES (?, ?, ?, ?);', [
+        'INSERT INTO users VALUES (?, ?, ?, ?, NULL, NULL);', [
         id, first, last, username
     ]);
     return sql.runQuery(query);
 };
 
-sql.createGame = async function (organizer, capacity, day, time, game) {
-    const query = sqlstring.format(
-        'INSERT INTO games VALUES (null, ?, ?, ?, ?);', [
-        organizer, capacity, `${day} ${time}`, game
+sql.createGame = async function (organizer, capacity, datetime, game) {
+    let query, gameId;
+
+    query = sqlstring.format(
+        'INSERT INTO games VALUES (NULL, ?, ?, ?, ?, NULL, NULL);', [
+            organizer, capacity, datetime.toFormat(dateFormat), game
+    ]);
+    await sql.runQuery(query);
+
+    query = sqlstring.format(
+        'SELECT id FROM games WHERE organizer=? ORDER BY created DESC LIMIT 1;', [
+            organizer
+    ]);
+    gameId = await sql.runQuery(query);
+    gameId = gameId[0].id;
+
+    query = sqlstring.format(
+        'INSERT INTO players VALUES (NULL, ?, ?, NULL, NULL);', [
+            gameId, organizer
     ]);
     return sql.runQuery(query);
 };
