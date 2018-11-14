@@ -135,6 +135,39 @@ commands.newGameEnd = async function (bot, msg) {
     bot.sendMessage(user.id, 'Partida creada con éxito');
 };
 
+commands.listGames = async function (bot, msg) {
+    const games = await sql.getGames();
+    let response, players;
+
+    players = _.map(games, function (game) {
+        return sql.getPlayers(game.id);
+    });
+    players = await Promise.all(players);
+
+    response = _.map(games, function (game, i) {
+        const date = DateTime.fromJSDate(game.date);
+        let gamers = _.map(players[i], function (user) {
+            return `- ${user.first_name} ${user.last_name}`;
+        });
+
+        gamers = gamers.join(`
+`);
+
+        return `*${game.game}*
+Fecha: ${date.toLocaleString(DateTime.DATETIME_MED)}
+Plazas: ${game.capacity}
+Apuntados:
+${gamers}`;
+    });
+    response = response.join(`
+
+`);
+
+    bot.sendMessage(msg.from.id, response, {
+        'parse_mode': 'Markdown'
+    });
+};
+
 commands.processCallback = async function (bot, msg) {
     const dataLength = msg.data.length,
         msgType = msg.data[0];

@@ -44,14 +44,23 @@ sql.getGames = async function (includePast) {
     if (!includePast) {
         query.push('WHERE date >= NOW()');
     }
-    query.push(';');
+    query.push('ORDER BY date;');
     return sql.runQuery(query.join(' '));
+};
+
+sql.getPlayers = async function (game) {
+    const query = sqlstring.format(
+        'SELECT u.first_name, u.last_name, p.game FROM users AS u INNER JOIN players AS p ON u.id = p.player WHERE p.game = ?;', [
+            game
+        ]
+    );
+    return sql.runQuery(query);
 };
 
 sql.createUser = async function (id, first, last, username) {
     const query = sqlstring.format(
         'INSERT INTO users VALUES (?, ?, ?, ?, NULL, NULL);', [
-        id, first, last, username
+            id, first, last, username
     ]);
     return sql.runQuery(query);
 };

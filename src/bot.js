@@ -28,6 +28,10 @@ bot.onText(/\/nueva.*/, function (msg) {
     commands.newGameStart(bot, msg);
 });
 
+bot.onText(/\/lista.*/, function (msg) {
+    commands.listGames(bot, msg);
+});
+
 bot.onText(/.*/, function (msg) {
     const code = _.get(msg, 'reply_to_message.text');
 
