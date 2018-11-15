@@ -14,7 +14,17 @@ const bot = new TelegramBot(settings.token, {polling: true});
 
 // COMMANDS ///////////////////////////////////////////////////////////////////
 
-const helpText = 'Este bot... TODO';
+const helpText = `Este bot permite organizar partidas de juegos de mesa
+
+Comandos:
+/ayuda - Describe el uso del bot
+/nueva - Crear una partida
+/lista - Listar todas las partidas (futuras)
+/milista - Listar las partidas (futuras) a las que te has apuntado
+/apuntarse - Apuntarse como jugador en una de las partidas
+/retirarse - Retirarse como jugador de una partida en la que estabas apuntado
+/cancelar - Cancela una partida que hayas organizado
+`;
 
 bot.onText(/\/start.*/, function (msg) {
     console.log('start');
@@ -51,9 +61,9 @@ bot.onText(/\/retirarse.*/, function (msg) {
     commands.leaveGameStart(bot, msg);
 });
 
-bot.onText(/\/borrar.*/, function (msg) {
-    console.log('borrar');
-    commands.listGames(bot, msg); // TODO
+bot.onText(/\/cancelar.*/, function (msg) {
+    console.log('cancelar');
+    commands.deleteGameStart(bot, msg);
 });
 
 bot.onText(/.*/, function (msg) {

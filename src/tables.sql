@@ -21,7 +21,7 @@ CREATE TABLE `users` (
     `created` TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     `modified` TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
     `first_name` varchar(100) NOT NULL,
-    `last_name` varchar(100) NOT NULL,
+    `last_name` varchar(100) NULL,
     `username` varchar(100),
     PRIMARY KEY (`id`)
 );

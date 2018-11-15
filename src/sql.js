@@ -74,6 +74,16 @@ sql.getGamesNotJoined = async function (userId) {
     return sql.runQuery(query);
 };
 
+sql.getGamesAsOrganizer = async function (userId) {
+    const query = sqlstring.format(
+        'SELECT * FROM games WHERE date >= NOW() AND organizer ?;', [
+            userId
+        ]
+    );
+
+    return sql.runQuery(query);
+};
+
 sql.getPlayers = async function (game) {
     const query = sqlstring.format(
         'SELECT u.first_name, u.last_name, p.game FROM users AS u INNER JOIN players AS p ON u.id = p.player WHERE p.game = ?;', [

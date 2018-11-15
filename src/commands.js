@@ -276,7 +276,6 @@ commands.leaveGameEnd = async function (bot, msg) {
         date;
 
     game = game[0];
-
     if (game.organizer === user.id) {
         bot.sendMessage(msg.from.id, 'No te puedes retirar de la partida si eres el organizador');
         return;
@@ -289,6 +288,48 @@ commands.leaveGameEnd = async function (bot, msg) {
     bot.sendMessage(game.organizer,
         `${user.first_name} ${user.last_name} se ha retirado de la partida a ${game.game} el ${date.toLocaleString(DateTime.DATETIME_SHORT)}`
     );
+};
+
+commands.deleteGameStart = async function (bot, msg) {
+    let games = await sql.getGamesAsOrganizer(msg.from.id),
+        keyboard;
+
+    if (games.length === 0) {
+        bot.sendMessage(msg.from.id, 'No hay partidas que hayas organizado');
+        return;
+    }
+
+    keyboard = _.map(games, function (game) {
+        const date = DateTime.fromJSDate(game.date);
+
+        return [{
+            'text': `${game.game} el ${date.toLocaleString(DateTime.DATETIME_SHORT)}`,
+            'callback_data': `c${game.id}`
+        }];
+    });
+
+    bot.sendMessage(msg.chat.id, 'Elige partida para cancelar', {
+        'reply_markup': {
+            'inline_keyboard': keyboard
+        }
+    });
+};
+
+commands.deleteGameEnd = async function (bot, msg) {
+    const user = await utils.getOrCreateUser(msg),
+        gameId = msg.data.substring(1),
+        players = await sql.getPlayers(gameId);
+    let game = await sql.getGame(gameId),
+        date;
+
+    game = game[0];
+    if (game.organizer !== user.id) {
+        bot.sendMessage(msg.from.id, 'No puedes cancelar una la partida si no eres el organizador');
+        return;
+    }
+    date = DateTime.fromJSDate(game.date);
+
+    // TODO
 };
 
 commands.processCallback = async function (bot, msg) {
@@ -308,6 +349,8 @@ commands.processCallback = async function (bot, msg) {
         commands.joinGameEnd(bot, msg);
     } else if (msgType === 'r') {
         commands.leaveGameEnd(bot, msg);
+    } else if (msgType === 'c') {
+        commands.deleteGameEnd(bot, msg);
     } else {
         bot.sendMessage(msg.message.chat.id, msg.data);
     }
