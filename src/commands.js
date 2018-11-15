@@ -1,6 +1,8 @@
 // Copyright (c) 2018 Alejandro Blanco <alejandro.b.e@gmail.com>
 // MIT License
 
+/*global Promise*/
+
 'use strict';
 
 const sql = require('./sql.js'),
@@ -8,7 +10,23 @@ const sql = require('./sql.js'),
     _ = require('lodash');
 
 const commands = {},
+    utils = {},
     dateFormat = 'yyLLdd';
+
+utils.getOrCreateUser = async function (msg) {
+    let user = await sql.getUser(msg.from.id);
+    if (user.length === 0) {
+        await sql.createUser(
+            msg.from.id,
+            msg.from.first_name,
+            msg.from.last_name,
+            msg.from.username
+        );
+        user = await sql.getUser(msg.from.id);
+    }
+    user = user[0];
+    return user;
+};
 
 commands.newGameStart = async function (bot, msg) {
     let day = DateTime.local(),
@@ -113,17 +131,7 @@ commands.newGameEnd = async function (bot, msg) {
         return;
     }
 
-    user = await sql.getUser(msg.from.id);
-    if (user.length === 0) {
-        await sql.createUser(
-            msg.from.id,
-            msg.from.first_name,
-            msg.from.last_name,
-            msg.from.username
-        );
-        user = await sql.getUser(msg.from.id);
-    }
-    user = user[0];
+    user = await utils.getOrCreateUser(msg);
 
     datetime = code.substring(1, 9);
     datetime = DateTime.fromFormat(datetime, `${dateFormat}HH`);
@@ -135,9 +143,14 @@ commands.newGameEnd = async function (bot, msg) {
     bot.sendMessage(user.id, 'Partida creada con éxito');
 };
 
-commands.listGames = async function (bot, msg) {
-    const games = await sql.getGames();
-    let response, players;
+commands.listGames = async function (bot, msg, onlyGamesAsPlayer) {
+    let games, response, players;
+
+    if (onlyGamesAsPlayer) {
+        games = await sql.getGamesAsPlayer(msg.from.id);
+    } else {
+        games = await sql.getGames();
+    }
 
     players = _.map(games, function (game) {
         return sql.getPlayers(game.id);
@@ -146,10 +159,14 @@ commands.listGames = async function (bot, msg) {
 
     response = _.map(games, function (game, i) {
         const date = DateTime.fromJSDate(game.date);
-        let gamers = _.map(players[i], function (user) {
+        let gamers;
+
+        gamers = _.map(players[i], function (user) {
             return `- ${user.first_name} ${user.last_name}`;
         });
-
+        _.times(game.capacity - gamers.length, function () {
+            gamers.push('- ?');
+        });
         gamers = gamers.join(`
 `);
 
@@ -163,9 +180,115 @@ ${gamers}`;
 
 `);
 
+    if (response.length === 0) {
+        response = 'No hay ninguna partida aún';
+    }
+
     bot.sendMessage(msg.from.id, response, {
         'parse_mode': 'Markdown'
     });
+};
+
+commands.joinGameStart = async function (bot, msg) {
+    let games = await sql.getGamesNotJoined(msg.from.id),
+        players, keyboard;
+
+    players = _.map(games, function (game) {
+        return sql.getNumberOfPlayers(game.id);
+    });
+    players = await Promise.all(players);
+
+    games = _.filter(games, function (game, i) {
+        return game.capacity > players[i][0]['COUNT(id)'];
+    });
+
+    if (games.length === 0) {
+        bot.sendMessage(msg.from.id, 'No hay partidas a las que puedas apuntarte');
+        return;
+    }
+
+    keyboard = _.map(games, function (game) {
+        const date = DateTime.fromJSDate(game.date);
+
+        return [{
+            'text': `${game.game} el ${date.toLocaleString(DateTime.DATETIME_SHORT)}`,
+            'callback_data': `a${game.id}`
+        }];
+    });
+
+    bot.sendMessage(msg.chat.id, 'Elige partida', {
+        'reply_markup': {
+            'inline_keyboard': keyboard
+        }
+    });
+};
+
+commands.joinGameEnd = async function (bot, msg) {
+    const user = await utils.getOrCreateUser(msg),
+        gameId = msg.data.substring(1),
+        players = await sql.getPlayers(gameId);
+    let game = await sql.getGame(gameId),
+        date;
+
+    game = game[0];
+    if (game.capacity > players.length) {
+        await sql.addPlayer(gameId, user.id);
+        bot.sendMessage(msg.from.id, 'Te has apuntado con éxito a la partida');
+
+        date = DateTime.fromJSDate(game.date);
+        bot.sendMessage(game.organizer,
+            `${user.first_name} ${user.last_name} se ha apuntado a la partida a ${game.game} el ${date.toLocaleString(DateTime.DATETIME_SHORT)}`
+        );
+    } else {
+        bot.sendMessage(msg.from.id, 'Error, no quedan plazas libres en la partida');
+    }
+};
+
+commands.leaveGameStart = async function (bot, msg) {
+    let games = await sql.getGamesAsPlayer(msg.from.id),
+        keyboard;
+
+    if (games.length === 0) {
+        bot.sendMessage(msg.from.id, 'No hay partidas en las que estés apuntado');
+        return;
+    }
+
+    keyboard = _.map(games, function (game) {
+        const date = DateTime.fromJSDate(game.date);
+
+        return [{
+            'text': `${game.game} el ${date.toLocaleString(DateTime.DATETIME_SHORT)}`,
+            'callback_data': `r${game.id}`
+        }];
+    });
+
+    bot.sendMessage(msg.chat.id, 'Elige partida', {
+        'reply_markup': {
+            'inline_keyboard': keyboard
+        }
+    });
+};
+
+commands.leaveGameEnd = async function (bot, msg) {
+    const user = await utils.getOrCreateUser(msg),
+        gameId = msg.data.substring(1);
+    let game = await sql.getGame(gameId),
+        date;
+
+    game = game[0];
+
+    if (game.organizer === user.id) {
+        bot.sendMessage(msg.from.id, 'No te puedes retirar de la partida si eres el organizador');
+        return;
+    }
+
+    await sql.deletePlayer(gameId, user.id);
+    bot.sendMessage(msg.from.id, 'Te has retirado de la partida');
+
+    date = DateTime.fromJSDate(game.date);
+    bot.sendMessage(game.organizer,
+        `${user.first_name} ${user.last_name} se ha retirado de la partida a ${game.game} el ${date.toLocaleString(DateTime.DATETIME_SHORT)}`
+    );
 };
 
 commands.processCallback = async function (bot, msg) {
@@ -181,6 +304,10 @@ commands.processCallback = async function (bot, msg) {
         } else if (dataLength === 10) {
             commands.newGameStep3(bot, msg);
         }
+    } else if (msgType === 'a') {
+        commands.joinGameEnd(bot, msg);
+    } else if (msgType === 'r') {
+        commands.leaveGameEnd(bot, msg);
     } else {
         bot.sendMessage(msg.message.chat.id, msg.data);
     }

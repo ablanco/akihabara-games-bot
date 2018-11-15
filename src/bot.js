@@ -17,19 +17,43 @@ const bot = new TelegramBot(settings.token, {polling: true});
 const helpText = 'Este bot... TODO';
 
 bot.onText(/\/start.*/, function (msg) {
+    console.log('start');
     bot.sendMessage(msg.from.id, helpText);
 });
 
 bot.onText(/\/ayuda.*/, function (msg) {
+    console.log('ayuda');
     bot.sendMessage(msg.from.id, helpText);
 });
 
 bot.onText(/\/nueva.*/, function (msg) {
+    console.log('nueva');
     commands.newGameStart(bot, msg);
 });
 
 bot.onText(/\/lista.*/, function (msg) {
+    console.log('lista');
     commands.listGames(bot, msg);
+});
+
+bot.onText(/\/milista.*/, function (msg) {
+    console.log('milista');
+    commands.listGames(bot, msg, true);
+});
+
+bot.onText(/\/apuntarse.*/, function (msg) {
+    console.log('apuntarse');
+    commands.joinGameStart(bot, msg);
+});
+
+bot.onText(/\/retirarse.*/, function (msg) {
+    console.log('retirarse');
+    commands.leaveGameStart(bot, msg);
+});
+
+bot.onText(/\/borrar.*/, function (msg) {
+    console.log('borrar');
+    commands.listGames(bot, msg); // TODO
 });
 
 bot.onText(/.*/, function (msg) {
