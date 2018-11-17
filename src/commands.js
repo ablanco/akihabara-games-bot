@@ -28,6 +28,34 @@ utils.getOrCreateUser = async function (msg) {
     return user;
 };
 
+utils.renderGames = async function (games) {
+    let players;
+
+    players = _.map(games, function (game) {
+        return sql.getPlayers(game.id);
+    });
+    players = await Promise.all(players);
+
+    return _.map(games, function (game, i) {
+        const date = DateTime.fromJSDate(game.date);
+        let gamers;
+
+        gamers = _.map(players[i], function (user) {
+            return `- ${user.first_name} ${user.last_name}`;
+        });
+        _.times(game.capacity - gamers.length, function () {
+            gamers.push('- ?');
+        });
+        gamers = gamers.join('\n');
+
+        return `${_.upperCase(game.game)}
+Fecha: ${date.toLocaleString(DateTime.DATETIME_MED)}
+Plazas: ${game.capacity}
+Apuntados:
+${gamers}`;
+    });
+};
+
 commands.newGameStart = async function (bot, msg) {
     let day = DateTime.local(),
         start = day.weekday;
@@ -144,7 +172,7 @@ commands.newGameEnd = async function (bot, msg) {
 };
 
 commands.listGames = async function (bot, msg, onlyGamesAsPlayer) {
-    let games, response, players;
+    let games, response;
 
     if (onlyGamesAsPlayer) {
         games = await sql.getGamesAsPlayer(msg.from.id);
@@ -152,33 +180,8 @@ commands.listGames = async function (bot, msg, onlyGamesAsPlayer) {
         games = await sql.getGames();
     }
 
-    players = _.map(games, function (game) {
-        return sql.getPlayers(game.id);
-    });
-    players = await Promise.all(players);
-
-    response = _.map(games, function (game, i) {
-        const date = DateTime.fromJSDate(game.date);
-        let gamers;
-
-        gamers = _.map(players[i], function (user) {
-            return `- ${user.first_name} ${user.last_name}`;
-        });
-        _.times(game.capacity - gamers.length, function () {
-            gamers.push('- ?');
-        });
-        gamers = gamers.join(`
-`);
-
-        return `${_.upperCase(game.game)}
-Fecha: ${date.toLocaleString(DateTime.DATETIME_MED)}
-Plazas: ${game.capacity}
-Apuntados:
-${gamers}`;
-    });
-    response = response.join(`
-
-`);
+    response = await utils.renderGames(games);
+    response = response.join('\n\n');
 
     if (response.length === 0) {
         response = 'No hay ninguna partida aún';
@@ -368,6 +371,37 @@ commands.processCallback = async function (bot, msg) {
     } else {
         bot.sendMessage(msg.message.chat.id, msg.data);
     }
+};
+
+commands.answerInlineQuery = async function (bot, inlineId, query) {
+    const games = await sql.getGames(),
+        gameTexts = await utils.renderGames(games);
+    let results, gamesData;
+
+    if (query.length === 0) {
+        results = [{
+            'id': -1,
+            'title': 'Todas las partidas',
+            'input_message_content': {
+                'message_text': gameTexts.join('\n\n')
+            }
+        }];
+    } else {
+        gamesData = _.zip(games, gameTexts);
+        results = _.map(_.filter(gamesData, function (gameData) {
+            return _.lowerCase(gameData[0].game).indexOf(query) >= 0;
+        }), function (gameData) {
+            return {
+                'id': -1,
+                'title': 'Todas las partidas',
+                'input_message_content': {
+                    'message_text': gameData[1]
+                }
+            };
+        });
+    }
+
+    bot.answerInlineQuery(inlineId, results);
 };
 
 module.exports = commands;

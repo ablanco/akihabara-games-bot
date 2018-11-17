@@ -80,4 +80,10 @@ bot.on('callback_query', function (msg) {
     commands.processCallback(bot, msg);
 });
 
+// INLINE MODE ////////////////////////////////////////////////////////////////
+
+bot.on('inline_query', function (request) {
+    commands.answerInlineQuery(bot, request.id, _.trim(request.query));
+});
+
 module.exports = bot;
