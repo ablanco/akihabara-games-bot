@@ -336,12 +336,14 @@ commands.deleteGameEnd = async function (bot, msg) {
     date = DateTime.fromJSDate(game.date);
     gameTitle = `${game.game} el ${date.toLocaleString(DateTime.DATETIME_SHORT)}`;
 
+    await sql.deleteGameAndPlayers(gameId);
+
     _.forEach(players, function (player) {
-        sql.deletePlayer(game.id, player.id);
         if (player.id !== game.organizer) {
             bot.sendMessage(player.id, `La partida a ${gameTitle} ha sido cancelada por el organizador`);
         }
     });
+    bot.sendMessage(msg.from.id, 'Partida cancelada con éxito');
 };
 
 commands.processCallback = async function (bot, msg) {

@@ -27,42 +27,42 @@ Comandos:
 `;
 
 bot.onText(/\/start.*/, function (msg) {
-    console.log('start');
+    console.log(`${msg.from.id} -> start`);
     bot.sendMessage(msg.from.id, helpText);
 });
 
 bot.onText(/\/ayuda.*/, function (msg) {
-    console.log('ayuda');
+    console.log(`${msg.from.id} -> ayuda`);
     bot.sendMessage(msg.from.id, helpText);
 });
 
 bot.onText(/\/nueva.*/, function (msg) {
-    console.log('nueva');
+    console.log(`${msg.from.id} -> nueva`);
     commands.newGameStart(bot, msg);
 });
 
 bot.onText(/\/lista.*/, function (msg) {
-    console.log('lista');
+    console.log(`${msg.from.id} -> lista`);
     commands.listGames(bot, msg);
 });
 
 bot.onText(/\/milista.*/, function (msg) {
-    console.log('milista');
+    console.log(`${msg.from.id} -> milista`);
     commands.listGames(bot, msg, true);
 });
 
 bot.onText(/\/apuntarse.*/, function (msg) {
-    console.log('apuntarse');
+    console.log(`${msg.from.id} -> apuntarse`);
     commands.joinGameStart(bot, msg);
 });
 
 bot.onText(/\/retirarse.*/, function (msg) {
-    console.log('retirarse');
+    console.log(`${msg.from.id} -> retirarse`);
     commands.leaveGameStart(bot, msg);
 });
 
 bot.onText(/\/cancelar.*/, function (msg) {
-    console.log('cancelar');
+    console.log(`${msg.from.id} -> cancelar`);
     commands.deleteGameStart(bot, msg);
 });
 

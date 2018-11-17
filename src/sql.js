@@ -79,7 +79,7 @@ sql.getGamesAsOrganizer = async function (userId) {
 
 sql.getPlayers = async function (game) {
     const query = sqlstring.format(
-        'SELECT u.first_name, u.last_name, p.game FROM users AS u INNER JOIN players AS p ON u.id = p.player WHERE p.game = ?;', [
+        'SELECT u.id, u.first_name, u.last_name, p.game FROM users AS u INNER JOIN players AS p ON u.id = p.player WHERE p.game = ?;', [
             game
         ]
     );
@@ -127,12 +127,6 @@ sql.createGame = async function (organizer, capacity, datetime, game) {
     return sql.runQuery(query);
 };
 
-sql.deleteGame = async function (game) {
-    const query = sqlstring.format(
-        'DELETE FROM games WHERE game = ?;', [game]);
-    return sql.runQuery(query);
-};
-
 sql.addPlayer = async function (game, user) {
     const query = sqlstring.format(
         'INSERT INTO players (game, player) VALUES (?, ?);', [game, user]);
@@ -142,6 +136,16 @@ sql.addPlayer = async function (game, user) {
 sql.deletePlayer = async function (game, user) {
     const query = sqlstring.format(
         'DELETE FROM players WHERE game = ? AND player = ?;', [game, user]);
+    return sql.runQuery(query);
+};
+
+sql.deleteGameAndPlayers = async function (game) {
+    let query = sqlstring.format(
+        'DELETE FROM players WHERE game = ?;', [game]);
+    await sql.runQuery(query);
+
+    query = sqlstring.format(
+        'DELETE FROM games WHERE id = ?;', [game]);
     return sql.runQuery(query);
 };
 
