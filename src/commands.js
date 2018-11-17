@@ -381,6 +381,7 @@ commands.answerInlineQuery = async function (bot, inlineId, query) {
     if (query.length === 0) {
         results = [{
             'id': -1,
+            'type': 'article',
             'title': 'Todas las partidas',
             'input_message_content': {
                 'message_text': gameTexts.join('\n\n')
@@ -392,8 +393,9 @@ commands.answerInlineQuery = async function (bot, inlineId, query) {
             return _.lowerCase(gameData[0].game).indexOf(query) >= 0;
         }), function (gameData) {
             return {
-                'id': -1,
-                'title': 'Todas las partidas',
+                'id': gameData[0].id,
+                'type': 'article',
+                'title': gameData[0].game,
                 'input_message_content': {
                     'message_text': gameData[1]
                 }

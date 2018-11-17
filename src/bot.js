@@ -83,7 +83,9 @@ bot.on('callback_query', function (msg) {
 // INLINE MODE ////////////////////////////////////////////////////////////////
 
 bot.on('inline_query', function (request) {
-    commands.answerInlineQuery(bot, request.id, _.trim(request.query));
+    const query = _.trim(request.query);
+    console.log(`inline -> ${query}`);
+    commands.answerInlineQuery(bot, request.id, query);
 });
 
 module.exports = bot;
