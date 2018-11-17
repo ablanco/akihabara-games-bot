@@ -226,7 +226,15 @@ commands.joinGameEnd = async function (bot, msg) {
         gameId = msg.data.substring(1),
         players = await sql.getPlayers(gameId);
     let game = await sql.getGame(gameId),
-        date;
+        date, alreadyJoined;
+
+    alreadyJoined = _.some(players, function (player) {
+        return player.id === user.id;
+    });
+    if (alreadyJoined) {
+        bot.sendMessage(msg.from.id, 'Ya estabas apuntado a la partida, no puedes apuntarte dos veces');
+        return;
+    }
 
     game = game[0];
     if (game.capacity > players.length) {
@@ -331,7 +339,7 @@ commands.deleteGameEnd = async function (bot, msg) {
     _.forEach(players, function (player) {
         sql.deletePlayer(game.id, player.id);
         if (player.id !== game.organizer) {
-            bot.sendMessage(user.id, `La partida a ${gameTitle} ha sido cancelada por el organizador`);
+            bot.sendMessage(player.id, `La partida a ${gameTitle} ha sido cancelada por el organizador`);
         }
     });
 };

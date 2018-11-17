@@ -73,7 +73,7 @@ sql.getGamesNotJoined = async function (userId) {
 
 sql.getGamesAsOrganizer = async function (userId) {
     const query = sqlstring.format(
-        'SELECT * FROM games WHERE date >= NOW() AND organizer ?;', [userId]);
+        'SELECT * FROM games WHERE date >= NOW() AND organizer = ?;', [userId]);
     return sql.runQuery(query);
 };
 
