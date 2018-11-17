@@ -19,8 +19,8 @@ utils.getOrCreateUser = async function (msg) {
         await sql.createUser(
             msg.from.id,
             msg.from.first_name,
-            msg.from.last_name,
-            msg.from.username
+            msg.from.last_name || '',
+            msg.from.username || ''
         );
         user = await sql.getUser(msg.from.id);
     }
@@ -170,7 +170,7 @@ commands.listGames = async function (bot, msg, onlyGamesAsPlayer) {
         gamers = gamers.join(`
 `);
 
-        return `*${game.game}*
+        return `${_.upperCase(game.game)}
 Fecha: ${date.toLocaleString(DateTime.DATETIME_MED)}
 Plazas: ${game.capacity}
 Apuntados:
@@ -184,9 +184,7 @@ ${gamers}`;
         response = 'No hay ninguna partida aún';
     }
 
-    bot.sendMessage(msg.from.id, response, {
-        'parse_mode': 'Markdown'
-    });
+    bot.sendMessage(msg.from.id, response);
 };
 
 commands.joinGameStart = async function (bot, msg) {
@@ -320,7 +318,7 @@ commands.deleteGameEnd = async function (bot, msg) {
         gameId = msg.data.substring(1),
         players = await sql.getPlayers(gameId);
     let game = await sql.getGame(gameId),
-        date;
+        date, gameTitle;
 
     game = game[0];
     if (game.organizer !== user.id) {
@@ -328,8 +326,14 @@ commands.deleteGameEnd = async function (bot, msg) {
         return;
     }
     date = DateTime.fromJSDate(game.date);
+    gameTitle = `${game.game} el ${date.toLocaleString(DateTime.DATETIME_SHORT)}`;
 
-    // TODO
+    _.forEach(players, function (player) {
+        sql.deletePlayer(game.id, player.id);
+        if (player.id !== game.organizer) {
+            bot.sendMessage(user.id, `La partida a ${gameTitle} ha sido cancelada por el organizador`);
+        }
+    });
 };
 
 commands.processCallback = async function (bot, msg) {

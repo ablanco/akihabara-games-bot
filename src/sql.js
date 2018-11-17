@@ -33,15 +33,13 @@ sql.runQuery = async function (query) {
 
 sql.getUser = async function (id) {
     const query = sqlstring.format(
-        'SELECT * FROM users WHERE id=?;', [id]
-    );
+        'SELECT * FROM users WHERE id=?;', [id]);
     return sql.runQuery(query);
 };
 
 sql.getGame = async function (id) {
     const query = sqlstring.format(
-        'SELECT * FROM games WHERE id=?;', [id]
-    );
+        'SELECT * FROM games WHERE id=?;', [id]);
     return sql.runQuery(query);
 };
 
@@ -70,17 +68,12 @@ sql.getGamesNotJoined = async function (userId) {
             userId
         ]
     );
-
     return sql.runQuery(query);
 };
 
 sql.getGamesAsOrganizer = async function (userId) {
     const query = sqlstring.format(
-        'SELECT * FROM games WHERE date >= NOW() AND organizer ?;', [
-            userId
-        ]
-    );
-
+        'SELECT * FROM games WHERE date >= NOW() AND organizer ?;', [userId]);
     return sql.runQuery(query);
 };
 
@@ -95,10 +88,7 @@ sql.getPlayers = async function (game) {
 
 sql.getNumberOfPlayers = async function (game) {
     const query = sqlstring.format(
-        'SELECT COUNT(id) FROM players WHERE game = ?;', [
-            game
-        ]
-    );
+        'SELECT COUNT(id) FROM players WHERE game = ?;', [game]);
     return sql.runQuery(query);
 };
 
@@ -106,7 +96,8 @@ sql.createUser = async function (id, first, last, username) {
     const query = sqlstring.format(
         'INSERT INTO users (id, first_name, last_name, username) VALUES (?, ?, ?, ?);', [
             id, first, last, username
-    ]);
+        ]
+    );
     return sql.runQuery(query);
 };
 
@@ -116,36 +107,41 @@ sql.createGame = async function (organizer, capacity, datetime, game) {
     query = sqlstring.format(
         'INSERT INTO games (organizer, capacity, date, game) VALUES (?, ?, ?, ?);', [
             organizer, capacity, datetime.toFormat(dateFormat), game
-    ]);
+        ]
+    );
     await sql.runQuery(query);
 
     query = sqlstring.format(
         'SELECT id FROM games WHERE organizer=? ORDER BY created DESC LIMIT 1;', [
             organizer
-    ]);
+        ]
+    );
     gameId = await sql.runQuery(query);
     gameId = gameId[0].id;
 
     query = sqlstring.format(
         'INSERT INTO players (game, player) VALUES (?, ?);', [
             gameId, organizer
-    ]);
+        ]
+    );
+    return sql.runQuery(query);
+};
+
+sql.deleteGame = async function (game) {
+    const query = sqlstring.format(
+        'DELETE FROM games WHERE game = ?;', [game]);
     return sql.runQuery(query);
 };
 
 sql.addPlayer = async function (game, user) {
     const query = sqlstring.format(
-        'INSERT INTO players (game, player) VALUES (?, ?);', [
-            game, user
-    ]);
+        'INSERT INTO players (game, player) VALUES (?, ?);', [game, user]);
     return sql.runQuery(query);
 };
 
 sql.deletePlayer = async function (game, user) {
     const query = sqlstring.format(
-        'DELETE FROM players WHERE game = ? AND player = ?;', [
-            game, user
-    ]);
+        'DELETE FROM players WHERE game = ? AND player = ?;', [game, user]);
     return sql.runQuery(query);
 };
 
