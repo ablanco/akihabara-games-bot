@@ -37,7 +37,7 @@ utils.renderGames = async function (games) {
     players = await Promise.all(players);
 
     return _.map(games, function (game, i) {
-        const date = DateTime.fromJSDate(game.date).setLocale('es-ES');
+        const date = DateTime.fromJSDate(game.date).setLocale('es');
         let gamers;
 
         gamers = _.map(players[i], function (user) {
@@ -57,7 +57,7 @@ ${gamers}`;
 };
 
 commands.newGameStart = async function (bot, msg) {
-    let day = DateTime.local().setLocale('es-ES'),
+    let day = DateTime.local().setLocale('es'),
         start = day.weekday;
     const keyboard = [];
 
@@ -167,7 +167,7 @@ commands.newGameEnd = async function (bot, msg) {
     user = await utils.getOrCreateUser(msg);
 
     datetime = code.substring(1, 11);
-    datetime = DateTime.fromFormat(datetime, `${dateFormat}HHmm`).setLocale('es-ES');
+    datetime = DateTime.fromFormat(datetime, `${dateFormat}HHmm`).setLocale('es');
 
     players = parseInt(code.substring(11), 12);
 
@@ -214,7 +214,7 @@ commands.joinGameStart = async function (bot, msg) {
     }
 
     keyboard = _.map(games, function (game) {
-        const date = DateTime.fromJSDate(game.date).setLocale('es-ES');
+        const date = DateTime.fromJSDate(game.date).setLocale('es');
 
         return [{
             'text': `${game.game} el ${date.toLocaleString(DateTime.DATETIME_SHORT)}`,
@@ -249,7 +249,7 @@ commands.joinGameEnd = async function (bot, msg) {
         await sql.addPlayer(gameId, user.id);
         bot.sendMessage(msg.from.id, 'Te has apuntado con éxito a la partida');
 
-        date = DateTime.fromJSDate(game.date).setLocale('es-ES');
+        date = DateTime.fromJSDate(game.date).setLocale('es');
         bot.sendMessage(game.organizer,
             `${user.first_name} ${user.last_name} se ha apuntado a la partida a ${game.game} el ${date.toLocaleString(DateTime.DATETIME_SHORT)}`
         );
@@ -268,7 +268,7 @@ commands.leaveGameStart = async function (bot, msg) {
     }
 
     keyboard = _.map(games, function (game) {
-        const date = DateTime.fromJSDate(game.date).setLocale('es-ES');
+        const date = DateTime.fromJSDate(game.date).setLocale('es');
 
         return [{
             'text': `${game.game} el ${date.toLocaleString(DateTime.DATETIME_SHORT)}`,
@@ -298,7 +298,7 @@ commands.leaveGameEnd = async function (bot, msg) {
     await sql.deletePlayer(gameId, user.id);
     bot.sendMessage(msg.from.id, 'Te has retirado de la partida');
 
-    date = DateTime.fromJSDate(game.date).setLocale('es-ES');
+    date = DateTime.fromJSDate(game.date).setLocale('es');
     bot.sendMessage(game.organizer,
         `${user.first_name} ${user.last_name} se ha retirado de la partida a ${game.game} el ${date.toLocaleString(DateTime.DATETIME_SHORT)}`
     );
@@ -314,7 +314,7 @@ commands.deleteGameStart = async function (bot, msg) {
     }
 
     keyboard = _.map(games, function (game) {
-        const date = DateTime.fromJSDate(game.date).setLocale('es-ES');
+        const date = DateTime.fromJSDate(game.date).setLocale('es');
 
         return [{
             'text': `${game.game} el ${date.toLocaleString(DateTime.DATETIME_SHORT)}`,
@@ -341,7 +341,7 @@ commands.deleteGameEnd = async function (bot, msg) {
         bot.sendMessage(msg.from.id, 'No puedes cancelar una la partida si no eres el organizador');
         return;
     }
-    date = DateTime.fromJSDate(game.date).setLocale('es-ES');
+    date = DateTime.fromJSDate(game.date).setLocale('es');
     gameTitle = `${game.game} el ${date.toLocaleString(DateTime.DATETIME_SHORT)}`;
 
     await sql.deleteGameAndPlayers(gameId);
