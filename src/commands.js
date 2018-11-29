@@ -88,20 +88,25 @@ commands.newGameStep1 = async function (bot, msg) {
     const d = msg.data,
         keyboard = [
             [
-                { 'text': '10:00', 'callback_data': `${d}10` },
-                { 'text': '11:00', 'callback_data': `${d}11` },
-                { 'text': '12:00', 'callback_data': `${d}12` },
-                { 'text': '13:00', 'callback_data': `${d}13` }
+                { 'text': '10:00', 'callback_data': `${d}1000` },
+                { 'text': '11:00', 'callback_data': `${d}1100` },
+                { 'text': '12:00', 'callback_data': `${d}1200` },
+                { 'text': '13:00', 'callback_data': `${d}1300` }
             ], [
-                { 'text': '15:00', 'callback_data': `${d}15` },
-                { 'text': '16:00', 'callback_data': `${d}16` },
-                { 'text': '17:00', 'callback_data': `${d}17` },
-                { 'text': '18:00', 'callback_data': `${d}18` }
+                { 'text': '15:00', 'callback_data': `${d}1500` },
+                { 'text': '16:00', 'callback_data': `${d}1600` },
+                { 'text': '16:30', 'callback_data': `${d}1630` },
+                { 'text': '17:00', 'callback_data': `${d}1700` }
             ], [
-                { 'text': '19:00', 'callback_data': `${d}19` },
-                { 'text': '20:00', 'callback_data': `${d}20` },
-                { 'text': '21:00', 'callback_data': `${d}21` },
-                { 'text': '22:00', 'callback_data': `${d}22` }
+                { 'text': '17:30', 'callback_data': `${d}1730` },
+                { 'text': '18:00', 'callback_data': `${d}1800` },
+                { 'text': '18:30', 'callback_data': `${d}1830` },
+                { 'text': '19:00', 'callback_data': `${d}1900` }
+            ], [
+                { 'text': '20:00', 'callback_data': `${d}2000` },
+                { 'text': '21:00', 'callback_data': `${d}2100` },
+                { 'text': '22:00', 'callback_data': `${d}2200` },
+                { 'text': '23:00', 'callback_data': `${d}2300` }
             ]
         ];
 
@@ -161,10 +166,10 @@ commands.newGameEnd = async function (bot, msg) {
 
     user = await utils.getOrCreateUser(msg);
 
-    datetime = code.substring(1, 9);
-    datetime = DateTime.fromFormat(datetime, `${dateFormat}HH`).setLocale('es-ES');
+    datetime = code.substring(1, 11);
+    datetime = DateTime.fromFormat(datetime, `${dateFormat}HHmm`).setLocale('es-ES');
 
-    players = parseInt(code.substring(9), 10);
+    players = parseInt(code.substring(11), 12);
 
     sql.createGame(user.id, players, datetime, gameName);
 
@@ -357,9 +362,9 @@ commands.processCallback = async function (bot, msg) {
         // New game
         if (dataLength === 7) {
             commands.newGameStep1(bot, msg);
-        } else if (dataLength === 9) {
+        } else if (dataLength === 11) {
             commands.newGameStep2(bot, msg);
-        } else if (dataLength === 10) {
+        } else if (dataLength === 12) {
             commands.newGameStep3(bot, msg);
         }
     } else if (msgType === 'a') {
