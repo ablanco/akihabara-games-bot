@@ -364,6 +364,11 @@ commands.expelPlayerStart = async function (bot, msg) {
         }
     );
 
+    if (keyboard.length === 0) {
+        bot.sendMessage(msg.from.id, 'No hay jugadores a los que expulsar');
+        return;
+    }
+
     bot.sendMessage(msg.chat.id, 'Elige jugador para expulsar', {
         'reply_markup': {
             'inline_keyboard': _.map(keyboard, function (item) {
