@@ -6,55 +6,12 @@
 'use strict';
 
 const sql = require('./sql.js'),
+    utils = require('./utils.js'),
     { DateTime } = require('luxon'),
     _ = require('lodash');
 
 const commands = {},
-    utils = {},
     dateFormat = 'yyLLdd';
-
-utils.getOrCreateUser = async function (msg) {
-    let user = await sql.getUser(msg.from.id);
-    if (user.length === 0) {
-        await sql.createUser(
-            msg.from.id,
-            msg.from.first_name,
-            msg.from.last_name || '',
-            msg.from.username || ''
-        );
-        user = await sql.getUser(msg.from.id);
-    }
-    user = user[0];
-    return user;
-};
-
-utils.renderGames = async function (games) {
-    let players;
-
-    players = _.map(games, function (game) {
-        return sql.getPlayers(game.id);
-    });
-    players = await Promise.all(players);
-
-    return _.map(games, function (game, i) {
-        const date = DateTime.fromJSDate(game.date).setLocale('es');
-        let gamers;
-
-        gamers = _.map(players[i], function (user) {
-            return `- ${user.first_name} ${user.last_name}`;
-        });
-        _.times(game.capacity - gamers.length, function () {
-            gamers.push('- ?');
-        });
-        gamers = gamers.join('\n');
-
-        return `${_.upperCase(game.game)}
-Fecha: ${date.toLocaleString(DateTime.DATETIME_MED)}
-Plazas: ${game.capacity}
-Apuntados:
-${gamers}`;
-    });
-};
 
 commands.newGameStart = async function (bot, msg) {
     let day = DateTime.local().setLocale('es'),
@@ -338,7 +295,7 @@ commands.deleteGameEnd = async function (bot, msg) {
 
     game = game[0];
     if (game.organizer !== user.id) {
-        bot.sendMessage(msg.from.id, 'No puedes cancelar una la partida si no eres el organizador');
+        bot.sendMessage(msg.from.id, 'No puedes cancelar una partida si no eres el organizador');
         return;
     }
     date = DateTime.fromJSDate(game.date).setLocale('es');
@@ -352,6 +309,64 @@ commands.deleteGameEnd = async function (bot, msg) {
         }
     });
     bot.sendMessage(msg.from.id, 'Partida cancelada con éxito');
+};
+
+commands.expelPlayerStart = async function (bot, msg) {
+    const games = await sql.getGamesAsOrganizer(msg.from.id);
+    let players, keyboard;
+
+    if (games.length === 0) {
+        bot.sendMessage(msg.from.id, 'No hay partidas que hayas organizado');
+        return;
+    }
+
+    players = await utils.getPlayersFromGames(games);
+
+    keyboard = _.reject(
+        _.flatten(
+            _.map(games, function (game, i) {
+                return _.map(players[i], function (user) {
+                    if (msg.from.id === user.id) { return; }
+                    return {
+                        'text': `${game.game} => ${user.first_name} ${user.last_name}`,
+                        'callback_data': `e${user.player}`
+                    };
+                });
+            })
+        ), function (item) {
+            return _.isUndefined(item);
+        }
+    );
+
+    bot.sendMessage(msg.chat.id, 'Elige jugador para expulsar', {
+        'reply_markup': {
+            'inline_keyboard': _.map(keyboard, function (item) {
+                return [item];
+            })
+        }
+    });
+};
+
+commands.expelPlayerEnd = async function (bot, msg) {
+    const user = await utils.getOrCreateUser(msg),
+        playerId = msg.data.substring(1);
+    let player, game, gameTitle, date;
+
+    player = await sql.getPlayer(playerId);
+    player = player[0];
+    game = await sql.getGame(player.game);
+    game = game[0];
+    if (game.organizer !== user.id) {
+        bot.sendMessage(msg.from.id, 'No puedes expulsar a un jugador de una partida si no eres el organizador');
+        return;
+    }
+
+    await sql.deletePlayer(player.game, player.player);
+
+    date = DateTime.fromJSDate(game.date).setLocale('es');
+    gameTitle = `${game.game} el ${date.toLocaleString(DateTime.DATETIME_SHORT)}`;
+    bot.sendMessage(player.player, `Has sido expulsado de la partida a ${gameTitle} por el organizador`);
+    bot.sendMessage(msg.from.id, 'Jugador expulsado con éxito');
 };
 
 commands.processCallback = async function (bot, msg) {
@@ -373,6 +388,8 @@ commands.processCallback = async function (bot, msg) {
         commands.leaveGameEnd(bot, msg);
     } else if (msgType === 'c') {
         commands.deleteGameEnd(bot, msg);
+    } else if (msgType === 'e') {
+        commands.expelPlayerEnd(bot, msg);
     } else {
         bot.sendMessage(msg.message.chat.id, msg.data);
     }

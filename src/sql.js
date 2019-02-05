@@ -43,6 +43,18 @@ sql.getGame = async function (id) {
     return sql.runQuery(query);
 };
 
+sql.getPlayer = async function (id) {
+    const query = sqlstring.format(
+        'SELECT * FROM players WHERE id=?;', [id]);
+    return sql.runQuery(query);
+};
+
+sql.getGame = async function (id) {
+    const query = sqlstring.format(
+        'SELECT * FROM games WHERE id=?;', [id]);
+    return sql.runQuery(query);
+};
+
 sql.getGames = async function (includePast) {
     const query = ['SELECT * FROM games'];
 
@@ -79,7 +91,7 @@ sql.getGamesAsOrganizer = async function (userId) {
 
 sql.getPlayers = async function (game) {
     const query = sqlstring.format(
-        'SELECT u.id, u.first_name, u.last_name, p.game FROM users AS u INNER JOIN players AS p ON u.id = p.player WHERE p.game = ?;', [
+        'SELECT u.id, u.first_name, u.last_name, p.game, p.id AS player FROM users AS u INNER JOIN players AS p ON u.id = p.player WHERE p.game = ?;', [
             game
         ]
     );

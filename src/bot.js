@@ -24,6 +24,7 @@ Comandos:
 /apuntarse - Apuntarse como jugador en una de las partidas
 /retirarse - Retirarse como jugador de una partida en la que estabas apuntado
 /cancelar - Cancela una partida que hayas organizado
+/expulsar - Expulsar a un jugador de una partida que hayas organizado
 `;
 
 bot.onText(/\/start.*/, function (msg) {
@@ -64,6 +65,11 @@ bot.onText(/\/retirarse.*/, function (msg) {
 bot.onText(/\/cancelar.*/, function (msg) {
     console.log(`${msg.from.id} -> cancelar`);
     commands.deleteGameStart(bot, msg);
+});
+
+bot.onText(/\/expulsar.*/, function (msg) {
+    console.log(`${msg.from.id} -> expulsar`);
+    commands.expelPlayerStart(bot, msg);
 });
 
 bot.onText(/.*/, function (msg) {
