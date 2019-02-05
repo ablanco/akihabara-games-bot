@@ -45,25 +45,33 @@ commands.newGameStep1 = async function (bot, msg) {
     const d = msg.data,
         keyboard = [
             [
-                { 'text': '10:00', 'callback_data': `${d}1000` },
-                { 'text': '11:00', 'callback_data': `${d}1100` },
-                { 'text': '12:00', 'callback_data': `${d}1200` },
-                { 'text': '13:00', 'callback_data': `${d}1300` }
+                { 'text': '10', 'callback_data': `${d}10` },
+                { 'text': '11', 'callback_data': `${d}11` },
+                { 'text': '12', 'callback_data': `${d}12` },
+                { 'text': '13', 'callback_data': `${d}13` },
+                { 'text': '14', 'callback_data': `${d}14` },
+                { 'text': '15', 'callback_data': `${d}15` }
             ], [
-                { 'text': '15:00', 'callback_data': `${d}1500` },
-                { 'text': '16:00', 'callback_data': `${d}1600` },
-                { 'text': '16:30', 'callback_data': `${d}1630` },
-                { 'text': '17:00', 'callback_data': `${d}1700` }
+                { 'text': '16', 'callback_data': `${d}16` },
+                { 'text': '17', 'callback_data': `${d}17` },
+                { 'text': '18', 'callback_data': `${d}18` },
+                { 'text': '19', 'callback_data': `${d}19` },
+                { 'text': '20', 'callback_data': `${d}20` },
+                { 'text': '21', 'callback_data': `${d}21` }
             ], [
-                { 'text': '17:30', 'callback_data': `${d}1730` },
-                { 'text': '18:00', 'callback_data': `${d}1800` },
-                { 'text': '18:30', 'callback_data': `${d}1830` },
-                { 'text': '19:00', 'callback_data': `${d}1900` }
+                { 'text': '22', 'callback_data': `${d}22` },
+                { 'text': '23', 'callback_data': `${d}23` },
+                { 'text': '00', 'callback_data': `${d}00` },
+                { 'text': '01', 'callback_data': `${d}01` },
+                { 'text': '02', 'callback_data': `${d}02` },
+                { 'text': '03', 'callback_data': `${d}03` }
             ], [
-                { 'text': '20:00', 'callback_data': `${d}2000` },
-                { 'text': '21:00', 'callback_data': `${d}2100` },
-                { 'text': '22:00', 'callback_data': `${d}2200` },
-                { 'text': '23:00', 'callback_data': `${d}2300` }
+                { 'text': '04', 'callback_data': `${d}04` },
+                { 'text': '05', 'callback_data': `${d}05` },
+                { 'text': '06', 'callback_data': `${d}06` },
+                { 'text': '07', 'callback_data': `${d}07` },
+                { 'text': '08', 'callback_data': `${d}08` },
+                { 'text': '09', 'callback_data': `${d}09` }
             ]
         ];
 
@@ -75,6 +83,24 @@ commands.newGameStep1 = async function (bot, msg) {
 };
 
 commands.newGameStep2 = async function (bot, msg) {
+    const d = msg.data,
+        keyboard = [
+            [
+                { 'text': '00', 'callback_data': `${d}00` },
+                { 'text': '15', 'callback_data': `${d}15` },
+                { 'text': '30', 'callback_data': `${d}30` },
+                { 'text': '45', 'callback_data': `${d}45` }
+            ]
+        ];
+
+    bot.sendMessage(msg.message.chat.id, 'Elige minutos', {
+        'reply_markup': {
+            'inline_keyboard': keyboard
+        }
+    });
+};
+
+commands.newGameStep3 = async function (bot, msg) {
     const d = msg.data,
         keyboard = [
             [
@@ -95,7 +121,7 @@ commands.newGameStep2 = async function (bot, msg) {
     });
 };
 
-commands.newGameStep3 = async function (bot, msg) {
+commands.newGameStep4 = async function (bot, msg) {
     const d = msg.data;
 
     bot.sendMessage(msg.message.chat.id, 'Escribe el nombre del juego');
@@ -377,10 +403,12 @@ commands.processCallback = async function (bot, msg) {
         // New game
         if (dataLength === 7) {
             commands.newGameStep1(bot, msg);
-        } else if (dataLength === 11) {
+        } else if (dataLength === 9) {
             commands.newGameStep2(bot, msg);
-        } else if (dataLength === 12) {
+        } else if (dataLength === 11) {
             commands.newGameStep3(bot, msg);
+        } else if (dataLength === 12) {
+            commands.newGameStep4(bot, msg);
         }
     } else if (msgType === 'a') {
         commands.joinGameEnd(bot, msg);
