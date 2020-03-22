@@ -18,10 +18,10 @@
   },
   "license": "MIT",
   "dependencies": {
-    "lodash": "^4.17.11",
-    "luxon": "^1.6.2",
-    "mariadb": "^2.0.0-alpha",
-    "node-telegram-bot-api": "^0.30.0",
+    "lodash": "^4.17.15",
+    "luxon": "^1.22.0",
+    "mariadb": "^2.3.1",
+    "node-telegram-bot-api": "^0.40.0",
     "node-uuid": "^1.4.8",
     "sqlstring": "^2.3.1"
   }
