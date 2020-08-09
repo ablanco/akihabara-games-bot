@@ -1,3 +1,5 @@
+[![dependencies Status](https://david-dm.org/ablanco/akihabarabot/status.svg)](https://david-dm.org/ablanco/akihabarabot)
+
 # akihabarabot
 A Telegram bot to organize board games
 
