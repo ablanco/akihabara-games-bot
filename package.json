@@ -21,7 +21,7 @@
     "lodash": "^4.17.19",
     "luxon": "^1.22.0",
     "mariadb": "^2.3.1",
-    "node-telegram-bot-api": "^0.40.0",
+    "node-telegram-bot-api": "^0.50.0",
     "node-uuid": "^1.4.8",
     "sqlstring": "^2.3.1"
   }
