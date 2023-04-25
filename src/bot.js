@@ -10,7 +10,7 @@ const settings = require('./settings.js'),
 
 // TELEGRAM BOT ///////////////////////////////////////////////////////////////
 
-const bot = new TelegramBot(settings.token, {polling: true});
+const bot = new TelegramBot(settings.token, { polling: true });
 
 // COMMANDS ///////////////////////////////////////////////////////////////////
 
@@ -27,19 +27,34 @@ Comandos:
 /expulsar - Expulsar a un jugador de una partida que hayas organizado
 `;
 
+const notInGroups =
+    'Este comando no se puede utilizar en un grupo, abre una conversación privada con el bot para ello.';
+
 bot.onText(/\/start.*/, function (msg) {
     console.log(`${msg.from.id} -> start`);
-    bot.sendMessage(msg.from.id, helpText);
+    if (msg.chat.type !== 'private') {
+        bot.sendMessage(msg.chat.id, notInGroups);
+    } else {
+        bot.sendMessage(msg.from.id, helpText);
+    }
 });
 
 bot.onText(/\/ayuda.*/, function (msg) {
     console.log(`${msg.from.id} -> ayuda`);
-    bot.sendMessage(msg.from.id, helpText);
+    if (msg.chat.type !== 'private') {
+        bot.sendMessage(msg.chat.id, notInGroups);
+    } else {
+        bot.sendMessage(msg.from.id, helpText);
+    }
 });
 
 bot.onText(/\/nueva.*/, function (msg) {
     console.log(`${msg.from.id} -> nueva`);
-    commands.newGameStart(bot, msg);
+    if (msg.chat.type !== 'private') {
+        bot.sendMessage(msg.chat.id, notInGroups);
+    } else {
+        commands.newGameStart(bot, msg);
+    }
 });
 
 bot.onText(/\/lista.*/, function (msg) {
@@ -49,49 +64,63 @@ bot.onText(/\/lista.*/, function (msg) {
 
 bot.onText(/\/milista.*/, function (msg) {
     console.log(`${msg.from.id} -> milista`);
-    commands.listGames(bot, msg, true);
+    if (msg.chat.type !== 'private') {
+        bot.sendMessage(msg.chat.id, notInGroups);
+    } else {
+        commands.listGames(bot, msg, true);
+    }
 });
 
 bot.onText(/\/apuntarse.*/, function (msg) {
     console.log(`${msg.from.id} -> apuntarse`);
-    commands.joinGameStart(bot, msg);
+    if (msg.chat.type !== 'private') {
+        bot.sendMessage(msg.chat.id, notInGroups);
+    } else {
+        commands.joinGameStart(bot, msg);
+    }
 });
 
 bot.onText(/\/retirarse.*/, function (msg) {
     console.log(`${msg.from.id} -> retirarse`);
-    commands.leaveGameStart(bot, msg);
+    if (msg.chat.type !== 'private') {
+        bot.sendMessage(msg.chat.id, notInGroups);
+    } else {
+        commands.leaveGameStart(bot, msg);
+    }
 });
 
 bot.onText(/\/cancelar.*/, function (msg) {
     console.log(`${msg.from.id} -> cancelar`);
-    commands.deleteGameStart(bot, msg);
+    if (msg.chat.type !== 'private') {
+        bot.sendMessage(msg.chat.id, notInGroups);
+    } else {
+        commands.deleteGameStart(bot, msg);
+    }
 });
 
 bot.onText(/\/expulsar.*/, function (msg) {
     console.log(`${msg.from.id} -> expulsar`);
-    commands.expelPlayerStart(bot, msg);
+    if (msg.chat.type !== 'private') {
+        bot.sendMessage(msg.chat.id, notInGroups);
+    } else {
+        commands.expelPlayerStart(bot, msg);
+    }
 });
 
 bot.onText(/.*/, function (msg) {
     const code = _.get(msg, 'reply_to_message.text');
 
-    if (!_.isUndefined(code)) {
-        if (code[0] === 'n') {
-            commands.newGameEnd(bot, msg);
-        }
+    if (
+        !_.isUndefined(code) &&
+        code[0] === 'n' &&
+        msg.chat.type === 'private'
+    ) {
+        commands.newGameEnd(bot, msg);
     }
 });
 
 bot.on('callback_query', function (msg) {
     commands.processCallback(bot, msg);
-});
-
-// INLINE MODE ////////////////////////////////////////////////////////////////
-
-bot.on('inline_query', function (request) {
-    const query = _.trim(request.query);
-    console.log(`inline -> ${query}`);
-    commands.answerInlineQuery(bot, request.id, query);
 });
 
 module.exports = bot;
