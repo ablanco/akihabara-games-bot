@@ -27,13 +27,20 @@ Comandos:
 /expulsar - Expulsar a un jugador de una partida que hayas organizado
 `;
 
+const groupHelpText = `Este bot permite organizar partidas de juegos de mesa. Para más comandos abre una conversación privada con el bot.
+
+Comandos:
+/ayuda - Describe el uso del bot
+/lista - Listar todas las partidas (futuras)
+`;
+
 const notInGroups =
     'Este comando no se puede utilizar en un grupo, abre una conversación privada con el bot para ello.';
 
 bot.onText(/\/start.*/, function (msg) {
     console.log(`${msg.from.id} -> start`);
     if (msg.chat.type !== 'private') {
-        bot.sendMessage(msg.chat.id, notInGroups);
+        bot.sendMessage(msg.chat.id, groupHelpText);
     } else {
         bot.sendMessage(msg.from.id, helpText);
     }
@@ -42,7 +49,7 @@ bot.onText(/\/start.*/, function (msg) {
 bot.onText(/\/ayuda.*/, function (msg) {
     console.log(`${msg.from.id} -> ayuda`);
     if (msg.chat.type !== 'private') {
-        bot.sendMessage(msg.chat.id, notInGroups);
+        bot.sendMessage(msg.chat.id, groupHelpText);
     } else {
         bot.sendMessage(msg.from.id, helpText);
     }
